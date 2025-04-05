@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borderland Matemático - Escape Room</title>
+    <style>
+        :root {
+            --border-red: rgb(220, 20, 60);
+            --border-dark: rgb(40, 40, 40);
+            --border-gray: rgb(70, 70, 70);
+            --card-bg: rgb(15, 15, 15);
+            --text-light: rgb(240, 240, 240);
+            --text-red: rgb(255, 80, 80);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: black;
+            color: var(--text-light);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="rgb(10,10,10)" width="100" height="100"/><path d="M0 20 L100 20 M0 40 L100 40 M0 60 L100 60 M0 80 L100 80 M20 0 L20 100 M40 0 L40 100 M60 0 L60 100 M80 0 L80 100" stroke="rgb(20,20,20)" stroke-width="0.5"/></svg>');
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            border: 1px solid var(--border-gray);
+            backdrop-filter: blur(5px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-red);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--border-red);
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(220, 20, 60, 0.5);
+        }
+
+        h2 {
+            color: var(--text-light);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .screen-message {
+            background-color: rgba(220, 20, 60, 0.1);
+            border: 1px solid var(--border-red);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .screen-message:before {
+            content: "MENSAJE DEL JUEGO";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background-color: black;
+            padding: 0 10px;
+            font-size: 0.8rem;
+            color: var(--border-red);
+        }
+
+        .challenge-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-red);
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            position: relative;
+            box-shadow: 0 0 20px rgba(220, 20, 60, 0.3);
+        }
+
+        .card-title {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background-color: var(--border-red);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .challenge-content {
+            margin-top: 15px;
+        }
+
+        .math-problem {
+            margin: 15px 0;
+            padding: 10px;
+            border-left: 3px solid var(--border-red);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .math {
+            font-style: italic;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .answer-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-gray);
+        }
+
+        .answer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-red);
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-gray);
+            color: white;
+            border-radius: 4px;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--border-red);
+            box-shadow: 0 0 0 2px rgba(220, 20, 60, 0.2);
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: var(--border-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: rgb(180, 20, 50);
+            box-shadow: 0 0 10px rgba(220, 20, 60, 0.5);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .card-symbol {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 2rem;
+            color: var(--border-red);
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .feedback.correct {
+            background-color: rgba(30, 130, 76, 0.2);
+            border: 1px solid rgb(30, 130, 76);
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(220, 20, 60, 0.2);
+            border: 1px solid var(--border-red);
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--border-gray);
+            margin: 20px 0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--border-red);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .intro-section, .instructions-section {
+            margin-bottom: 30px;
+        }
+
+        ol, ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .challenge-number {
+            color: var(--border-red);
+            font-weight: bold;
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--border-red);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">02:00:00</div>
+
+    <div class="container">
+        <header>
+            <h1>Borderland Matemático</h1>
+            <h2>Juego de Supervivencia</h2>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <!-- Introducción -->
+        <div id="intro-screen">
+            <div class="intro-section">
+                <p>Te despiertas en un lugar extraño. Lo último que recuerdas es estar estudiando para tu examen de ingreso al Tec de Monterrey cuando una luz cegadora te envolvió. Ahora estás en lo que parece ser un campus universitario abandonado, pero algo no está bien. El cielo tiene un tono rojizo antinatural y hay pantallas gigantes flotando en el aire.</p>
+                <br>
+                <p>Una de ellas se ilumina frente a ti:</p>
+            </div>
+
+            <div class="screen-message">
+                <p><strong>"BIENVENIDO AL JUEGO DE SUPERVIVENCIA. COMPLETA TODAS LAS PRUEBAS MATEMÁTICAS PARA GANAR TU LIBERTAD. FRACASA Y QUEDARÁS ATRAPADO AQUÍ PARA SIEMPRE."</strong></p>
+            </div>
+
+            <div class="intro-section">
+                <p>Otra pantalla muestra un teléfono inteligente. Al acercarte, notas que el dispositivo funciona. Tiene una única aplicación llamada "Borderland". La abres y aparece un mensaje:</p>
+            </div>
+
+            <div class="screen-message">
+                <p><strong>"Has sido seleccionado para participar en nuestros juegos. Tu inteligencia matemática será puesta a prueba a través de 8 desafíos. Cada uno representa una carta de una baraja especial. Completa todos para obtener tu libertad. ¡Buena suerte!"</strong></p>
+            </div>
+
+            <div class="instructions-section">
+                <h3>Instrucciones</h3>
+                <ol>
+                    <li>Lee cuidadosamente cada escenario y acertijo</li>
+                    <li>Resuelve el acertijo matemático presentado</li>
+                    <li>Ingresa tu respuesta cuando estés listo</li>
+                    <li>Si fracasas en cualquier desafío, deberás comenzar desde el principio</li>
+                    <li>Avanza por las salas resolviendo cada desafío para completar el juego</li>
+                </ol>
+            </div>
+
+            <button onclick="startGame()">Comenzar el Juego</button>
+        </div>
+
+        <!-- Desafío 1: Biblioteca -->
+        <div id="challenge-1" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">3 DE TRÉBOLES</div>
+                <div class="card-symbol">♣</div>
+
+                <div class="challenge-content">
+                    <h3>LA BIBLIOTECA ABANDONADA</h3>
+                    <p>Te encuentras en lo que parece ser la biblioteca principal del campus. Los estantes están cubiertos de polvo y muchos libros están esparcidos por el suelo. En el centro hay una mesa con un naipe boca arriba: un 3 de tréboles.</p>
+                    <br>
+                    <p>La pantalla de tu teléfono muestra un mensaje:</p>
+                    <br>
+                    <p><strong>"Para salir de la biblioteca, debes encontrar la combinación correcta de la puerta de seguridad. Los libros contienen la clave."</strong></p>
+                    <br>
+                    <p>Observas tres pilas de libros organizadas cuidadosamente sobre la mesa. Cada pila tiene una etiqueta:</p>
+                    <ul>
+                        <li>Pila 1: "Secuencias"</li>
+                        <li>Pila 2: "Probabilidad"</li>
+                        <li>Pila 3: "Álgebra"</li>
+                    </ul>
+                    <br>
+                    <div class="math-problem">
+                        <p><span class="challenge-number">1.</span> Al abrir el primer libro de la pila "Secuencias", encuentras la siguiente anotación:</p>
+                        <p>"La secuencia 2, 6, 12, 20, 30, 42... esconde un patrón. ¿Cuál es el siguiente número?"</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">2.</span> Para la pila "Probabilidad", el libro muestra:</p>
+                        <p>"En una urna hay 5 bolas rojas, 8 azules y 7 verdes. Si extraes 3 bolas al azar y sin reemplazo, ¿cuál es la probabilidad de obtener exactamente 2 bolas azules y 1 roja? Expresa tu respuesta como fracción simplificada."</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">3.</span> Para la pila "Álgebra", el libro presenta:</p>
+                        <p>"Si 3x² - 12x + k = 0 tiene una única solución, ¿cuál es el valor de k?"</p>
+                    </div>
+
+                    <div class="answer-section">
+                        <p>La pantalla de la puerta de seguridad muestra tres espacios para ingresar los resultados. Según tu teléfono, debes multiplicar las tres respuestas para obtener el código final.</p>
+                        <br>
+                        <p>¿Cuál es el código para salir de la biblioteca?</p>
+
+                        <div class="answer-form">
+                            <div class="input-group">
+                                <label for="challenge1-answer">Tu respuesta:</label>
+                                <input type="number" id="challenge1-answer" placeholder="Ingresa el código final...">
+                            </div>
+                            <button onclick="checkAnswer(1)">Enviar respuesta</button>
+                        </div>
+
+                        <div id="feedback-1" class="feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desafío 2: Laboratorio -->
+        <div id="challenge-2" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">7 DE DIAMANTES</div>
+                <div class="card-symbol">♦</div>
+
+                <div class="challenge-content">
+                    <h3>EL LABORATORIO DE QUÍMICA</h3>
+                    <p>Has conseguido escapar de la biblioteca y ahora te encuentras en un laboratorio de química. En el centro hay una mesa con diversos equipos y un naipe: un 7 de diamantes.</p>
+                    <br>
+                    <p>La pantalla de tu teléfono se ilumina:</p>
+                    <br>
+                    <p><strong>"Para superar esta prueba, deberás mezclar los compuestos correctos en las proporciones exactas. Un error y el laboratorio podría explotar."</strong></p>
+                    <br>
+                    <p>Frente a ti hay 7 frascos numerados con líquidos de colores diferentes y una serie de ecuaciones escritas en la pizarra:</p>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">1.</span> Si mezclamos los frascos 1 y 2 en proporción x:y, donde x + y = 10, obtenemos una reacción segura cuando la mezcla contiene exactamente 40% del frasco 1. ¿Cuáles son los valores de x e y?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">2.</span> El frasco 3 debe diluirse con agua. Si necesitamos una solución al 30% y disponemos de 200 ml de una solución al 75%, ¿cuántos mililitros de agua debemos añadir?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">3.</span> Los frascos 4, 5, 6 y 7 deben mezclarse siguiendo este sistema de ecuaciones:</p>
+                        <p class="math">a + b + c + d = 26</p>
+                        <p class="math">2a + b - c = 7</p>
+                        <p class="math">a - b + 2c = 8</p>
+                        <p class="math">3a - 2b + c + d = 20</p>
+                        <p>Donde a, b, c y d representan los mililitros que debes tomar de cada frasco respectivamente.</p>
+                    </div>
+
+                    <div class="answer-section">
+                        <p>El panel de control para mezclar los compuestos tiene campos para ingresar tus respuestas. Una nota junto al panel dice: "La clave final es la suma de todos los valores numéricos utilizados."</p>
+                        <br>
+                        <p>¿Cuál es la clave final?</p>
+
+                        <div class="answer-form">
+                            <div class="input-group">
+                                <label for="challenge2-answer">Tu respuesta:</label>
+                                <input type="number" id="challenge2-answer" placeholder="Ingresa el código final...">
+                            </div>
+                            <button onclick="checkAnswer(2)">Enviar respuesta</button>
+                        </div>
+
+                        <div id="feedback-2" class="feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desafío 3: Gimnasio -->
+        <div id="challenge-3" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">4 DE CORAZONES</div>
+                <div class="card-symbol">♥</div>
+
+                <div class="challenge-content">
+                    <h3>EL GIMNASIO</h3>
+                    <p>Al salir del laboratorio, te encuentras en el gimnasio del campus. En el centro de la cancha hay un naipe: un 4 de corazones.</p>
+                    <br>
+                    <p>Tu teléfono muestra un nuevo mensaje:</p>
+                    <br>
+                    <p><strong>"En este desafío pondrás a prueba tu resistencia mental. Cuatro ejercicios de geometría te esperan. Cada uno está conectado con una de las cuatro instalaciones deportivas."</strong></p>
+                    <br>
+                    <p>Miras alrededor y ves cuatro áreas diferentes: piscina, cancha de baloncesto, pista de atletismo y campo de fútbol. Cada área tiene un problema específico:</p>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">1. Piscina:</span> La piscina rectangular tiene 25 metros de largo por 10 metros de ancho. Si un nadador nada en diagonal desde una esquina hasta la opuesta, ¿qué distancia recorre? Además, si la profundidad de la piscina es de 2 metros, ¿cuál es el volumen total de agua que contiene?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">2. Cancha de baloncesto:</span> La cancha tiene forma de rectángulo con semicírculos en los extremos. Si el rectángulo mide 28 metros de largo por 15 metros de ancho, y los semicírculos tienen como diámetro el ancho de la cancha, ¿cuál es el área total de la cancha?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">3. Pista de atletismo:</span> La pista consta de dos rectas de 100 metros cada una, conectadas por dos semicircunferencias. Si el ancho de la pista es de 10 metros, ¿cuál es la longitud de la línea central de la pista?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">4. Campo de fútbol:</span> El campo es un rectángulo de 105 metros por 68 metros. En cada esquina hay un cuarto de circunferencia de 9.15 metros de radio para marcar el área de córner. ¿Cuánto se reduce el área total del campo debido a estos cuartos de circunferencia?</p>
+                    </div>
+
+                    <div class="answer-section">
+                        <p>Una pantalla en el centro del gimnasio muestra: "El código de salida es la suma de todas las respuestas redondeadas al entero más cercano."</p>
+                        <br>
+                        <p>¿Cuál es el código para salir del gimnasio?</p>
+
+                        <div class="answer-form">
+                            <div class="input-group">
+                                <label for="challenge3-answer">Tu respuesta:</label>
+                                <input type="number" id="challenge3-answer" placeholder="Ingresa el código final...">
+                            </div>
+                            <button onclick="checkAnswer(3)">Enviar respuesta</button>
+                        </div>
+
+                        <div id="feedback-3" class="feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desafío 4: Sala de Computación -->
+        <div id="challenge-4" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">10 DE ESPADAS</div>
+                <div class="card-symbol">♠</div>
+
+                <div class="challenge-content">
+                    <h3>LA SALA DE COMPUTACIÓN</h3>
+                    <p>Tras superar el gimnasio, llegas a la sala de computación. En el teclado de la computadora central hay un naipe: un 10 de espadas.</p>
+                    <br>
+                    <p>Tu teléfono muestra:</p>
+                    <br>
+                    <p><strong>"Bienvenido al desafío de lógica y estadística. Diez problemas de razonamiento te esperan en la pantalla. Resuelve al menos 7 correctamente para avanzar."</strong></p>
+                    <br>
+                    <p>La computadora se enciende automáticamente y muestra los siguientes problemas:</p>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">1.</span> En una encuesta a 200 estudiantes, 120 estudian matemáticas, 100 estudian física y 50 estudian ambas materias. ¿Cuántos estudiantes no estudian ninguna de estas materias?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">2.</span> Si lanzamos dos dados equilibrados, ¿cuál es la probabilidad de que la suma sea mayor que 9?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">3.</span> En una progresión geométrica, el primer término es 5 y el cuarto término es 40. ¿Cuál es el séptimo término?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">4.</span> Si log₃(x) = 4, entonces x = ?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">5.</span> Una máquina puede producir 100 piezas en 4 horas. ¿Cuántas máquinas idénticas se necesitan para producir 600 piezas en 6 horas?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">6.</span> Si f(x) = 2x² - 3x + 1 y g(x) = 3x + 2, entonces f(g(2)) = ?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">7.</span> Una sucesión cumple aₙ = aₙ₋₁ + aₙ₋₂ para n ≥ 3. Si a₁ = 2 y a₂ = 5, encuentra a₈.</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">8.</span> Se seleccionan 3 números al azar del conjunto {1, 2, 3, 4, 5, 6, 7, 8, 9, 10} sin reemplazamiento. ¿Cuál es la probabilidad de que los 3 números sean consecutivos?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">9.</span> Si a + b + c = 10 y a² + b² + c² = 38, ¿cuál es el valor de ab + bc + ca?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">10.</span> Un depósito se llena en 12 horas con la llave A abierta, y en 15 horas con la llave B abierta. Si ambas llaves están abiertas, ¿en cuántas horas se llenará el depósito?</p>
+                    </div>
+
+                    <div class="answer-section">
+                        <p>La pantalla muestra un campo para ingresar tus respuestas. "El código final se formará con los dígitos de las posiciones 1ª, 3ª, 5ª y 7ª de tus respuestas correctas, en ese orden."</p>
+                        <br>
+                        <p>¿Cuál es el código final?</p>
+
+                        <div class="answer-form">
+                            <div class="input-group">
+                                <label for="challenge4-answer">Tu respuesta:</label>
+                                <input type="number" id="challenge4-answer" placeholder="Ingresa el código final...">
+                            </div>
+                            <button onclick="checkAnswer(4)">Enviar respuesta</button>
+                        </div>
+
+                        <div id="feedback-4" class="feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desafío 5: Cafetería -->
+        <div id="challenge-5" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">5 DE TRÉBOLES</div>
+                <div class="card-symbol">♣</div>
+
+                <div class="challenge-content">
+                    <h3>LA CAFETERÍA</h3>
+                    <p>Has logrado salir de la sala de computación y ahora te encuentras en la cafetería del campus. Sobre una mesa hay un naipe: un 5 de tréboles.</p>
+                    <br>
+                    <p>Tu teléfono muestra:</p>
+                    <br>
+                    <p><strong>"Cinco problemas de análisis matemático te esperan. El tiempo y la precisión son cruciales en este desafío."</strong></p>
+                    <br>
+                    <p>En las distintas estaciones de la cafetería encuentras problemas escritos en las pizarras de menú:</p>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">1. Barra de café:</span> Si el precio de un café aumentó un 20% en enero y luego un 25% en febrero respecto al precio anterior, ¿cuál fue el porcentaje total de aumento?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">2. Sección de sándwiches:</span> Una tienda vende sándwiches a $60 cada uno. El costo de producir x sándwiches diarios viene dado por la función C(x) = 1000 + 20x. Si todos los sándwiches producidos se venden, ¿cuántos debe producir diariamente para obtener una ganancia de $4000?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">3. Zona de frutas:</span> Un frutero tiene manzanas, naranjas y plátanos en relación 2:3:5. Si tiene 300 frutas en total, ¿cuántas manzanas debe añadir para que la relación cambie a 1:1:2?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">4. Área de postres:</span> Un pastel circular se corta en 8 porciones iguales. Si cada porción tiene un área de 12.5 cm², ¿cuál es el radio del pastel? (Usar π = 3.14)</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">5. Caja registradora:</span> Un cliente compra productos por $850 y paga con un billete de $1000. Si en la caja solo hay monedas de $1, $2, $5 y billetes de $50, ¿de cuántas formas diferentes se puede dar el cambio?</p>
+                    </div>
+
+                    <div class="answer-section">
+                        <p>La puerta de salida tiene un panel con 5 espacios para ingresar las respuestas. Un mensaje dice: "La clave final es el producto de las cinco respuestas."</p>
+                        <br>
+                        <p>¿Cuál es la clave final?</p>
+
+                        <div class="answer-form">
+                            <div class="input-group">
+                                <label for="challenge5-answer">Tu respuesta:</label>
+                                <input type="number" id="challenge5-answer" placeholder="Ingresa el código final...">
+                            </div>
+                            <button onclick="checkAnswer(5)">Enviar respuesta</button>
+                        </div>
+
+                        <div id="feedback-5" class="feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Continuar con los desafíos 6, 7 y 8 siguiendo el mismo formato... -->
+
+        <!-- Desafío 6: Auditorio -->
+        <div id="challenge-6" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">2 DE DIAMANTES</div>
+                <div class="card-symbol">♦</div>
+
+                <div class="challenge-content">
+                    <h3>EL AUDITORIO</h3>
+                    <p>Al salir de la cafetería, entras en el auditorio principal. En el escenario hay un naipe: un 2 de diamantes.</p>
+                    <br>
+                    <p>Tu teléfono muestra:</p>
+                    <br>
+                    <p><strong>"Dos problemas de optimización te esperan. Debes resolverlos para continuar."</strong></p>
+                    <br>
+                    <p>En la pantalla gigante del auditorio aparecen los siguientes problemas:</p>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">1. Problema de distancia mínima:</span> Un estudiante está en el punto A(0,0) y necesita ir al punto B(6,8) pasando primero por el eje x en algún punto C(x,0). ¿Para qué valor de x la distancia total recorrida AC + CB es mínima?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">2. Problema de área máxima:</span> Se quiere construir un recinto rectangular con 100 metros de valla. ¿Cuáles deben ser las dimensiones del rectángulo para que su área sea máxima?</p>
+                    </div>
+
+                    <div class="answer-section">
+                        <p>El escenario tiene dos cajas fuertes, cada una con un panel numérico para ingresar las respuestas. Una nota menciona: "La clave final es la suma de las dos respuestas."</p>
+                        <br>
+                        <p>¿Cuál es la clave final?</p>
+
+                        <div class="answer-form">
+                            <div class="input-group">
+                                <label for="challenge6-answer">Tu respuesta:</label>
+                                <input type="number" id="challenge6-answer" placeholder="Ingresa el código final...">
+                            </div>
+                            <button onclick="checkAnswer(6)">Enviar respuesta</button>
+                        </div>
+
+                        <div id="feedback-6" class="feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desafío 7: Observatorio -->
+        <div id="challenge-7" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">6 DE CORAZONES</div>
+                <div class="card-symbol">♥</div>
+
+                <div class="challenge-content">
+                    <h3>EL OBSERVATORIO</h3>
+                    <p>Tras superar el auditorio, llegas al observatorio astronómico en lo alto del campus. En la consola principal hay un naipe: un 6 de corazones.</p>
+                    <br>
+                    <p>Tu teléfono muestra:</p>
+                    <br>
+                    <p><strong>"Seis desafíos de trigonometría y geometría espacial te esperan entre las estrellas."</strong></p>
+                    <br>
+                    <p>En diferentes telescopios encuentras los siguientes problemas:</p>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">1.</span> Desde un punto A en el suelo se observa la cima de un edificio con un ángulo de elevación de 30°. Si nos alejamos 20 metros en línea recta, el ángulo de elevación es de 20°. ¿Cuál es la altura del edificio?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">2.</span> Una escalera de 10 metros de longitud está apoyada contra una pared. Si el ángulo que forma la escalera con el suelo es de 65°, ¿a qué altura de la pared llega la escalera?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">3.</span> Un globo aerostático se encuentra a una altura de 300 metros sobre el nivel del suelo. Desde un punto A en el suelo se observa el globo con un ángulo de elevación de 60°. ¿A qué distancia horizontal se encuentra el punto A del globo?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">4.</span> Una pirámide regular tiene base cuadrada de lado 6 metros y altura 8 metros. ¿Cuál es el volumen de la pirámide?</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">5.</span> Un cilindro tiene un radio de base de 5 cm y una altura de 12 cm. ¿Cuál es el área total del cilindro? (Usar π = 3.14)</p>
+                    </div>
+
+                    <div class="math-problem">
+                        <p><span class="challenge-number">6.</span> Un cono tiene un radio de base de 6 cm y una generatriz de 10 cm. ¿Cuál es el volumen del cono? (Usar π = 3.14)</p>
+                    </div>
+
+                    <div class="answer-section">
+                        <p>La consola central del observatorio tiene un panel para introducir tus respuestas. El mensaje dice: "La clave final es la suma de las seis respuestas redondeadas al entero más cercano."</p>
+                        <br>
+                        <p>¿Cuál es la clave final?</p>
+
+                        <div class="answer-form">
+                            <div class="input-group">
+                                <label for="challenge7-answer">Tu respuesta:</label>
+                                <input type="number" id="challenge7-answer" placeholder="Ingresa el código final...">
+                            </div>
+                            <button onclick="checkAnswer(7)">Enviar respuesta</button>
+                        </div>
+
+                        <div id="feedback-7" class="feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desafío 8: Torre del Reloj -->
+        <div id="challenge-8" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">AS DE ESPADAS</div>
+                <div class="card-symbol">♠</div>
+
+                <div class="challenge-content">
+                    <h3>LA TORRE DEL RELOJ</h3>
+                    <p>Después de superar todos los desafíos anteriores, llegas a la torre del reloj en el centro del campus. En la puerta hay un naipe: el As de espadas.</p>
+                    <br>
+                    <p>Tu teléfono muestra un último mensaje:</p>
+                    <br>
+                    <p><strong>"Has llegado al desafío final. Resuelve el rompecabezas matemático definitivo para ganar tu libertad y regresar a casa."</strong></p>
+                    <br>
+                    <p>Al entrar en la torre, ves un enorme reloj con ecuaciones en lugar de números. En el centro hay un panel con el siguiente problema:</p>
+                    <br>
+                    <p>"Este reloj marca el tiempo en otro mundo. Las manecillas siguen patrones matemáticos precisos.</p>
+                    <br>
+                    <p>Si la manecilla de las horas avanza según la función h(t) = t² mod 12,</p>
+                    <p>la manecilla de los minutos avanza según m(t) = (t² + t) mod 60,</p>
+                    <p>y la manecilla de los segundos avanza según s(t) = (t² + 2t) mod 60,</p>
+                    <br>
+                    <p>donde t es el tiempo en nuestra realidad (t ≥ 0).</p>
+                    <br>
+                    <p>Si las tres manecillas coinciden exactamente en el mismo punto, ¿cuál es el primer valor positivo de t (en minutos) para que esto ocurra?"</p>
+
+                    <div class="answer-section">
+                        <p>Debajo del reloj hay un teclado para introducir tu respuesta, y un mensaje final:</p>
+                        <br>
+                        <p>"Ingresa el valor correcto y serás libre. Comete un error y quedarás atrapado para siempre."</p>
+                        <br>
+                        <p>¿Cuál es la respuesta correcta?</p>
+
+                        <div class="answer-form">
+                            <div class="input-group">
+                                <label for="challenge8-answer">Tu respuesta:</label>
+                                <input type="number" id="challenge8-answer" placeholder="Ingresa el valor de t...">
+                            </div>
+                            <button onclick="checkAnswer(8)">Enviar respuesta</button>
+                        </div>
+
+                        <div id="feedback-8" class="feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla Final de Victoria -->
+        <div id="victory-screen" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">LIBERTAD</div>
+
+                <div class="challenge-content">
+                    <h3>¡FELICIDADES!</h3>
+                    <br>
+                    <p>Tras ingresar la respuesta correcta en el reloj, una luz brillante envuelve toda la torre. Las manecillas comienzan a girar rápidamente en sentido antihorario, como rebobinando el tiempo.</p>
+                    <br>
+                    <p>La pantalla de tu teléfono muestra un último mensaje:</p>
+                    <br>
+                    <div class="screen-message">
+                        <p><strong>"¡FELICIDADES! Has superado todos los desafíos matemáticos y has demostrado tener las habilidades necesarias para enfrentar la PAA del Tecnológico de Monterrey. ¡Tu futuro en la universidad te espera!"</strong></p>
+                    </div>
+                    <br>
+                    <p>En un destello cegador, despiertas frente a tus libros de preparación para el examen. Todo parece haber sido un sueño... hasta que miras tu teléfono. Tiene una nueva aplicación llamada "Borderland" y un mensaje:</p>
+                    <br>
+                    <div class="screen-message">
+                        <p><strong>"La próxima vez que necesites practicar matemáticas, ya sabes dónde encontrarme. ¡Suerte en tu examen!"</strong></p>
+                    </div>
+                    <br>
+                    <button onclick="window.location.reload()">Reiniciar Juego</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Game Over -->
+        <div id="gameover-screen" class="hidden">
+            <div class="challenge-card">
+                <div class="card-title">GAME OVER</div>
+
+                <div class="challenge-content">
+                    <h3>Has fracasado</h3>
+                    <br>
+                    <p>Al ingresar la respuesta incorrecta, las luces comienzan a parpadear y una voz mecánica resuena por todo el campus:</p>
+                    <br>
+                    <div class="screen-message">
+                        <p><strong>"ERROR. RESPUESTA INCORRECTA. PARTICIPANTE ELIMINADO."</strong></p>
+                    </div>
+                    <br>
+                    <p>Sientes cómo tu cuerpo se desvanece lentamente mientras las figuras de naipes te rodean. Tu tiempo en Borderland ha terminado...</p>
+                    <br>
+                    <button onclick="window.location.reload()">Intentar de nuevo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Respuestas correctas para cada desafío
+        const correctAnswers = {
+            1: 83,  // Biblioteca
+            2: 336, // Laboratorio
+            3: 1618, // Gimnasio
+            4: 3831, // Sala de Computación
+            5: 6345000, // Cafetería
+            6: 625, // Auditorio
+            7: 1146, // Observatorio
+            8: 60  // Torre del Reloj
+        };
+
+        // Variables para el juego
+        let currentChallenge = 0;
+        let completedChallenges = 0;
+        let timeLeft = 7200; // 2 horas en segundos
+        let timerInterval;
+
+        // Función para iniciar el juego
+        function startGame() {
+            document.getElementById('intro-screen').classList.add('hidden');
+            currentChallenge = 1;
+            showChallenge(currentChallenge);
+            startTimer();
+            updateProgress();
+        }
+
+        // Mostrar el desafío actual
+        function showChallenge(number) {
+            // Ocultar todos los desafíos
+            for(let i = 1; i <= 8; i++) {
+                document.getElementById(`challenge-${i}`).classList.add('hidden');
+            }
+
+            // Mostrar el desafío actual
+            document.getElementById(`challenge-${number}`).classList.remove('hidden');
+        }
+
+        // Verificar respuesta
+        function checkAnswer(challengeNumber) {
+            const userAnswer = parseInt(document.getElementById(`challenge${challengeNumber}-answer`).value);
+            const feedbackElement = document.getElementById(`feedback-${challengeNumber}`);
+
+            if(userAnswer === correctAnswers[challengeNumber]) {
+                feedbackElement.textContent = "¡Correcto! Has superado este desafío.";
+                feedbackElement.classList.remove('hidden', 'incorrect');
+                feedbackElement.classList.add('correct');
+
+                completedChallenges++;
+                updateProgress();
+
+                // Esperar 2 segundos y avanzar al siguiente desafío
+                setTimeout(() => {
+                    if(challengeNumber < 8) {
+                        currentChallenge++;
+                        showChallenge(currentChallenge);
+                    } else {
+                        // Victoria - completado todos los desafíos
+                        showVictoryScreen();
+                    }
+                }, 2000);
+            } else {
+                feedbackElement.textContent = "¡Incorrecto! Intenta de nuevo o quedarás atrapado para siempre.";
+                feedbackElement.classList.remove('hidden', 'correct');
+                feedbackElement.classList.add('incorrect');
+
+                // Dar 3 intentos antes de game over
+                const attempts = (parseInt(feedbackElement.dataset.attempts) || 0) + 1;
+                feedbackElement.dataset.attempts = attempts;
+
+                if(attempts >= 3) {
+                    setTimeout(() => {
+                        showGameOverScreen();
+                    }, 2000);
+                }
+            }
+        }
+
+        // Actualizar la barra de progreso
+        function updateProgress() {
+            const progressFill = document.getElementById('progress-fill');
+            const progressPercentage = (completedChallenges / 8) * 100;
+            progressFill.style.width = `${progressPercentage}%`;
+        }
+
+        // Iniciar el temporizador
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showGameOverScreen();
+                }
+            }, 1000);
+        }
+
+        // Actualizar el display del temporizador
+        function updateTimerDisplay() {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+
+            document.getElementById('timer').textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Mostrar pantalla de victoria
+        function showVictoryScreen() {
+            // Ocultar todos los desafíos
+            for(let i = 1; i <= 8; i++) {
+                document.getElementById(`challenge-${i}`).classList.add('hidden');
+            }
+
+            document.getElementById('victory-screen').classList.remove('hidden');
+            clearInterval(timerInterval);
+        }
+
+        // Mostrar pantalla de game over
+        function showGameOverScreen() {
+            // Ocultar todos los desafíos
+            for(let i = 1; i <= 8; i++) {
+                document.getElementById(`challenge-${i}`).classList.add('hidden');
+            }
+
+            document.getElementById('gameover-screen').classList.remove('hidden');
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>
